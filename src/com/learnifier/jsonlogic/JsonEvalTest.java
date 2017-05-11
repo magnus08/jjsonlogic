@@ -8,6 +8,7 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 /**
  * @author Magnus Andersson (magnus.andersson@learnifier.com)
@@ -24,6 +25,16 @@ class JsonEvalTest {
 
         assertTrue(res instanceof Integer);
         assertTrue((int)res == 42);
+    }
+
+    @Test
+    void varDate()  throws ParseException, IOException {
+        final Object res = new JsonEval(ImmutableMap.of(
+                "coolDate", df.parse("2042-05-08 11:01")
+        )).evalSt("{ \"var\" : \"coolDate\" }");
+
+        assertTrue(res instanceof java.util.Date);
+        assertTrue(res.equals(df.parse("2042-05-08 11:01")));
     }
 
     @Test
@@ -47,4 +58,16 @@ class JsonEvalTest {
         assertTrue(res instanceof Boolean);
         assertTrue((Boolean)res);
     }
+
+    @Test
+    void intArithmetic1()  throws ParseException, IOException {
+        final Object res = new JsonEval(ImmutableMap.of(
+                "cool", 42
+        )).evalSt("{\"+\": [ { \"var\" : \"cool\" }, 2 ]}]}");
+
+        assertTrue(res instanceof Integer);
+        assertEquals(res, 44);
+    }
+
+
 }
