@@ -1,5 +1,9 @@
 package com.learnifier.jsonlogic;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import java.io.IOException;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.GregorianCalendar;
@@ -13,9 +17,15 @@ public class JsonEval {
 
 
     private Map<String, ? extends Serializable> vals;
+    ObjectMapper mapper = new ObjectMapper();
 
     public JsonEval(Map<String, ? extends Serializable> vals) {
         this.vals = vals;
+    }
+
+    public Object evalSt(String rule) throws IOException {
+        return eval(mapper.readValue(rule, new TypeReference<Map<String, Object>>() {
+        }));
     }
 
     public Object eval(Object obj) {
