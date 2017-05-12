@@ -13,32 +13,28 @@ import java.util.Map;
 /**
  * @author Magnus Andersson (magnus.andersson@learnifier.com)
  */
-public class JsonEval {
+public class JsonLogic {
 
 
-    private Map<String, ? extends Serializable> vals;
     ObjectMapper mapper = new ObjectMapper();
 
-    public JsonEval(Map<String, ? extends Serializable> vals) {
-        this.vals = vals;
-    }
 
-    public Object evalSt(String rule) throws IOException {
+    public Object evalSt(String rule, Variables vars) throws IOException {
         return eval(mapper.readValue(rule, new TypeReference<Map<String, Object>>() {
-        }));
+        }), vars);
     }
 
-    public Object eval(Object obj) {
+    public Object eval(Object obj, Variables vars) {
         if(obj instanceof Map) {
             Map<String, Object> tree = (Map)obj;
             final String op = tree.keySet().stream().findFirst().orElseThrow(() -> new IllegalStateException("Parse error, multiple keys in " + tree));
             switch(op) {
                 case ">=":
-                    return gte(eval(((List)tree.get(op)).get(0)), eval(((List)tree.get(op)).get(1)));
+                    return gte(eval(((List)tree.get(op)).get(0), vars), eval(((List)tree.get(op)).get(1), vars), vars);
                 case "var":
-                    return var(tree.get(op));
+                    return var(tree.get(op), vars);
                 case "+":
-                    return plus(eval(((List)tree.get(op)).get(0)), eval(((List)tree.get(op)).get(1)));
+                    return plus(eval(((List)tree.get(op)).get(0), vars), eval(((List)tree.get(op)).get(1), vars), vars);
                 default:
                     throw new IllegalStateException("Operator " + op + " not implemented.");
             }
@@ -51,7 +47,7 @@ public class JsonEval {
 
     }
 
-    private Boolean gte(Object arg1, Object arg2) {
+    private Boolean gte(Object arg1, Object arg2, Variables vars) {
 
         if(arg1 instanceof Integer && arg2 instanceof Integer) {
             return (Integer)arg1 >= (Integer)arg2;
@@ -66,7 +62,7 @@ public class JsonEval {
         throw new IllegalStateException("Incorrect type in gte");
     }
 
-    private Object plus(Object arg1, Object arg2) {
+    private Object plus(Object arg1, Object arg2, Variables vars) {
         if(arg1 instanceof Date && arg2 instanceof Integer) {
             Date date = (Date)arg1;
             Integer val = (Integer)arg2;
@@ -81,12 +77,11 @@ public class JsonEval {
         throw new IllegalStateException("Incorrect type in gte");
     }
 
-    private Object var(Object name) {
+    private Object var(Object name, Variables vars) {
         if(name instanceof String) {
-            final Object value = vals.get(name);
+            final Object value = vars.getValue((String)name);
             return value;
         }
         throw new IllegalStateException("Variable name must be a string");
     }
-
 }
