@@ -22,44 +22,55 @@ public class JsonLogic {
         operators.put("+",
                 new Operator() {
                     @Override
-                    public Object eval(Environment env, Object arg1, Object arg2) {
-                        if(arg1 instanceof Date && arg2 instanceof Integer) {
-                            Date date = (Date)arg1;
-                            Integer val = (Integer)arg2;
-                            final java.util.Calendar cal = GregorianCalendar.getInstance();
-                            cal.setTime(date);
-                            cal.add(GregorianCalendar.DATE, val);
-                            return cal.getTime();
+                    public Object evalOp(Environment env, Object tree) {
+                        if(tree instanceof List && ((List)tree).size() == 2) {
+                            Object arg1 = eval(env, ((List)tree).get(0));
+                            Object arg2 = eval(env, ((List)tree).get(1));
+                            if(arg1 instanceof Date && arg2 instanceof Integer) {
+                                Date date = (Date)arg1;
+                                Integer val = (Integer)arg2;
+                                final java.util.Calendar cal = GregorianCalendar.getInstance();
+                                cal.setTime(date);
+                                cal.add(GregorianCalendar.DATE, val);
+                                return cal.getTime();
+                            }
+                            if(arg1 instanceof Integer && arg2 instanceof Integer) {
+                                return (Integer)arg1 + (Integer)arg2;
+                            }
+                            throw new JsonLogicException("Incorrect type in >, must be integer or date and both must be of same type.");
                         }
-                        if(arg1 instanceof Integer && arg2 instanceof Integer) {
-                            return (Integer)arg1 + (Integer)arg2;
-                        }
-                        throw new IllegalStateException("Incorrect type in +, must be integer or date.");
+                        throw new JsonLogicException("Eval takes two arguments.");
                     }
                 });
         operators.put(">",
                 new Operator() {
                     @Override
-                    public Object eval(Environment env, Object arg1, Object arg2) {
-                        if(arg1 instanceof Integer && arg2 instanceof Integer) {
-                            return (Integer)arg1 >= (Integer)arg2;
-                        }
-                        if(arg1 instanceof Date && arg2 instanceof Date) {
-                            Date d1 = (Date)arg1;
-                            Date d2 = (Date)arg2;
+                    public Object evalOp(Environment env, Object tree) {
+                        if(tree instanceof List && ((List)tree).size() == 2) {
+                            Object arg1 = eval(env, ((List)tree).get(0));
+                            Object arg2 = eval(env, ((List)tree).get(1));
+                            if(arg1 instanceof Integer && arg2 instanceof Integer) {
+                                return (Integer)arg1 >= (Integer)arg2;
+                            }
+                            if(arg1 instanceof Date && arg2 instanceof Date) {
+                                Date d1 = (Date)arg1;
+                                Date d2 = (Date)arg2;
 
-                            System.out.println(">= " + d1 + " " + d2);
-                            return d1.after(d2) || d1.equals(d2);
+                                System.out.println(">= " + d1 + " " + d2);
+                                return d1.after(d2) || d1.equals(d2);
+                            }
+                            throw new JsonLogicException("Incorrect type in >, must be integer or date and both must be of same type.");
                         }
-                        throw new IllegalStateException("Incorrect type in >");
+                        throw new JsonLogicException("> takes two arguments.");
                     }
+
                 });
         operators.put("var",
                 new Operator() {
                     @Override
-                    public Object eval(Environment env, Object arg1, Object arg2) {
-                        if (arg1 instanceof String) {
-                            final Object value = env.getValue((String) arg2);
+                    public Object evalOp(Environment env, Object arg) {
+                        if (arg instanceof String) {
+                            final Object value = env.getValue((String) arg);
                             return value;
                         }
                         throw new IllegalStateException("Variable name must be a string");
@@ -81,7 +92,7 @@ public class JsonLogic {
             Map<String, Object> tree = (Map)obj;
             final String op = tree.keySet().stream().findFirst().orElseThrow(() -> new IllegalStateException("Parse error, multiple keys in " + tree));
             if(operators.containsKey(op)) {
-                operators.get(op).eval(env, eval(env, ((List)tree.get(op)).get(0)), eval(env, ((List)tree.get(op)).get(1)));
+                return operators.get(op).evalOp(env, tree.get(op));
             } else {
                 throw new JsonLogicException("Operator " + op + " not implemented.");
             }
