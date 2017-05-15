@@ -2,6 +2,7 @@ package com.learnifier.jsonlogic;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import sun.rmi.runtime.Log;
 
 import java.io.IOException;
 import java.util.Date;
@@ -15,17 +16,17 @@ import java.util.Map;
  */
 public class JsonLogic {
 
-    final ObjectMapper mapper = new ObjectMapper();
-    final Map<String, Operator> operators = new HashMap<>();
+    private final ObjectMapper mapper = new ObjectMapper();
+    private final Map<String, Operator> operators = new HashMap<>();
 
-    public JsonLogic() {
+    private JsonLogic() {
         operators.put("+",
                 new Operator() {
                     @Override
                     public Object evalOp(Environment env, Object tree) {
                         if(tree instanceof List && ((List)tree).size() == 2) {
-                            Object arg1 = eval(env, ((List)tree).get(0));
-                            Object arg2 = eval(env, ((List)tree).get(1));
+                            Object arg1 = evalInner(env, ((List)tree).get(0));
+                            Object arg2 = evalInner(env, ((List)tree).get(1));
                             if(arg1 instanceof Date && arg2 instanceof Integer) {
                                 Date date = (Date)arg1;
                                 Integer val = (Integer)arg2;
@@ -47,8 +48,8 @@ public class JsonLogic {
                     @Override
                     public Object evalOp(Environment env, Object tree) {
                         if(tree instanceof List && ((List)tree).size() == 2) {
-                            Object arg1 = eval(env, ((List)tree).get(0));
-                            Object arg2 = eval(env, ((List)tree).get(1));
+                            Object arg1 = evalInner(env, ((List)tree).get(0));
+                            Object arg2 = evalInner(env, ((List)tree).get(1));
                             if(arg1 instanceof Integer && arg2 instanceof Integer) {
                                 return (Integer)arg1 >= (Integer)arg2;
                             }
@@ -79,12 +80,12 @@ public class JsonLogic {
     }
 
 
-    public Object evalSt(Environment env, String rule) throws IOException {
-        return eval(env, mapper.readValue(rule, new TypeReference<Map<String, Object>>() {
+    private Object evalSt(Environment env, String rule) throws IOException {
+        return evalInner(env, mapper.readValue(rule, new TypeReference<Map<String, Object>>() {
         }));
     }
 
-    public Object eval(Environment env, Object obj) {
+    private Object evalInner(Environment env, Object obj) {
         if(obj instanceof String) {
             return obj;
         }
@@ -103,5 +104,10 @@ public class JsonLogic {
 
         throw new IllegalStateException("Unknown type");
 
+    }
+
+
+    public static Object eval(Environment env, String rule) throws IOException {
+        return new JsonLogic().evalSt(env, rule);
     }
 }
