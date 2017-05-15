@@ -20,9 +20,9 @@ public class JsonLogic {
 
     private JsonLogic() {
         operators.put("&&",
-                new Operator<List>() {
+                new Operator() {
                     @Override
-                    public Object evalOp(Environment env, List tree) {
+                    public Boolean evalOp(Environment env, List tree) {
                         if(tree.size() == 2) {
                             Object arg1 = evalInner(env, tree.get(0));
                             Object arg2 = evalInner(env, tree.get(1));
@@ -35,9 +35,9 @@ public class JsonLogic {
                     }
                 });
         operators.put("||",
-                new Operator<List>() {
+                new Operator() {
                     @Override
-                    public Object evalOp(Environment env, List tree) {
+                    public Boolean evalOp(Environment env, List tree) {
                         if(tree.size() == 2) {
                             Object arg1 = evalInner(env, tree.get(0));
                             Object arg2 = evalInner(env, tree.get(1));
@@ -50,7 +50,7 @@ public class JsonLogic {
                     }
                 });
         operators.put("+",
-                new Operator<List>() {
+                new Operator() {
                     @Override
                     public Object evalOp(Environment env, List tree) {
                         if(tree.size() == 2) {
@@ -73,9 +73,9 @@ public class JsonLogic {
                     }
                 });
         operators.put(">",
-                new Operator<List>() {
+                new Operator() {
                     @Override
-                    public Object evalOp(Environment env, List tree) {
+                    public Boolean evalOp(Environment env, List<? extends Comparable> tree) {
                         if(tree.size() == 2) {
                             Object arg1 = evalInner(env, tree.get(0));
                             Object arg2 = evalInner(env, tree.get(1));
@@ -96,10 +96,11 @@ public class JsonLogic {
 
                 });
         operators.put("var",
-                new Operator<String>() {
+                new Operator() {
                     @Override
-                    public Object evalOp(Environment env, String arg) {
-                        return env.getValue(arg);
+                    public Object evalOp(Environment env, List<? extends Comparable> tree) {
+                        String arg1 = (String)evalInner(env, tree.get(0));
+                        return env.getValue(arg1);
                     }
                 });
     }
@@ -115,11 +116,11 @@ public class JsonLogic {
             return obj;
         }
         if(obj instanceof Map) {
-            Map<String, Object> tree = (Map)obj;
+            Map<String, List<? extends Comparable>> tree = (Map<String, List<? extends Comparable>>) obj;
             final String opName = tree.keySet().stream().findFirst().orElseThrow(() -> new ParseException("Parse error, multiple keys in " + tree));
-            Operator<List> op = operators.get(opName);
+            Operator op = operators.get(opName);
             if(op != null) {
-                return op.evalOp(env, (List)tree.get(opName));
+                return op.evalOp(env, tree.get(opName));
             } else {
                 throw new ParseException("Operator " + opName + " not implemented.");
             }
