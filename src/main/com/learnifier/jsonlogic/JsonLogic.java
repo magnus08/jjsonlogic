@@ -111,24 +111,18 @@ public class JsonLogic {
     }
 
     private Object evalInner(Environment env, Object obj) {
-        if(obj instanceof String) {
+        if(obj instanceof String || obj instanceof Integer || obj instanceof Boolean) {
             return obj;
         }
         if(obj instanceof Map) {
-            Map<String, Object> tree = (Map<String, Object>)obj;
-            final String op = tree.keySet().stream().findFirst().orElseThrow(() -> new ParseException("Parse error, multiple keys in " + tree));
-            if(operators.containsKey(op)) {
-                return operators.get(op).evalOp(env, tree.get(op));
+            Map<String, Object> tree = (Map)obj;
+            final String opName = tree.keySet().stream().findFirst().orElseThrow(() -> new ParseException("Parse error, multiple keys in " + tree));
+            Operator<List> op = operators.get(opName);
+            if(op != null) {
+                return op.evalOp(env, (List)tree.get(opName));
             } else {
-                throw new ParseException("Operator " + op + " not implemented.");
+                throw new ParseException("Operator " + opName + " not implemented.");
             }
-        }
-        if(obj instanceof Integer) {
-            return obj;
-        }
-
-        if(obj instanceof Boolean) {
-            return obj;
         }
 
         throw new ParseException("Unknown type");
