@@ -42,7 +42,7 @@ class JsonLogicTest {
         final Object res = new JsonLogic().evalSt(Environment.from(ImmutableMap.of(
                 "now", df.parse("2017-05-08 11:01"),
                 "course-start-date", df.parse("2017-05-06 11:00")
-        )), "{\">=\": [ { \"var\" : \"now\" }, {\"+\": [ { \"var\" : \"course-start-date\" }, 2 ]}]}");
+        )), "{\">\": [ { \"var\" : \"now\" }, {\"+\": [ { \"var\" : \"course-start-date\" }, 2 ]}]}");
 
         assertTrue(res instanceof Boolean);
         assertTrue((Boolean)res);
@@ -53,7 +53,7 @@ class JsonLogicTest {
         final Object res = new JsonLogic().evalSt(Environment.from(ImmutableMap.of(
                 "now", df.parse("2017-05-08 10:59"),
                 "course-start-date", df.parse("2017-05-06 11:00")
-        )), "{\">=\": [ { \"var\" : \"now\" }, {\"+\": [ { \"var\" : \"course-start-date\" }, 2 ]}]}");
+        )), "{\">\": [ { \"var\" : \"now\" }, {\"+\": [ { \"var\" : \"course-start-date\" }, 2 ]}]}");
 
         assertTrue(res instanceof Boolean);
         assertTrue((Boolean)res);
