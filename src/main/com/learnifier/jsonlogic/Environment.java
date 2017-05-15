@@ -7,16 +7,16 @@ import java.util.Map;
  *
  * @author Magnus Andersson (magnus.andersson@learnifier.com)
  */
-public class Variables {
+public class Environment {
 
     private Map<String, Object> variableMap;
 
-    Variables(Map<String, Object> variableMap) {
+    Environment(Map<String, Object> variableMap) {
         this.variableMap = variableMap;
     }
 
-    public static Variables from(Map<String, Object> variableMap) {
-        return new Variables(variableMap);
+    public static Environment from(Map<String, Object> variableMap) {
+        return new Environment(variableMap);
     }
 
     public Object getValue(String name) {
