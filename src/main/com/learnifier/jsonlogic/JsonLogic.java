@@ -37,9 +37,9 @@ public class JsonLogic {
                             if(arg1 instanceof Integer && arg2 instanceof Integer) {
                                 return (Integer)arg1 + (Integer)arg2;
                             }
-                            throw new JsonLogicException("Incorrect type in >, must be integer or date and both must be of same type.");
+                            throw new ParseException("Incorrect type in >, must be integer or date and both must be of same type.");
                         }
-                        throw new JsonLogicException("Eval takes two arguments.");
+                        throw new ParseException("Eval takes two arguments.");
                     }
                 });
         operators.put(">",
@@ -59,9 +59,9 @@ public class JsonLogic {
                                 System.out.println(">= " + d1 + " " + d2);
                                 return d1.after(d2) || d1.equals(d2);
                             }
-                            throw new JsonLogicException("Incorrect type in >, must be integer or date and both must be of same type.");
+                            throw new ParseException("Incorrect type in >, must be integer or date and both must be of same type.");
                         }
-                        throw new JsonLogicException("> takes two arguments.");
+                        throw new ParseException("> takes two arguments.");
                     }
 
                 });
@@ -94,7 +94,7 @@ public class JsonLogic {
             if(operators.containsKey(op)) {
                 return operators.get(op).evalOp(env, tree.get(op));
             } else {
-                throw new JsonLogicException("Operator " + op + " not implemented.");
+                throw new ParseException("Operator " + op + " not implemented.");
             }
         }
         if(obj instanceof Integer) {
