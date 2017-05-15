@@ -2,7 +2,6 @@ package com.learnifier.jsonlogic;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import sun.rmi.runtime.Log;
 
 import java.io.IOException;
 import java.util.Date;
@@ -21,12 +20,12 @@ public class JsonLogic {
 
     private JsonLogic() {
         operators.put("&&",
-                new Operator() {
+                new Operator<List>() {
                     @Override
-                    public Object evalOp(Environment env, Object tree) {
-                        if(tree instanceof List && ((List)tree).size() == 2) {
-                            Object arg1 = evalInner(env, ((List)tree).get(0));
-                            Object arg2 = evalInner(env, ((List)tree).get(1));
+                    public Object evalOp(Environment env, List tree) {
+                        if(tree.size() == 2) {
+                            Object arg1 = evalInner(env, tree.get(0));
+                            Object arg2 = evalInner(env, tree.get(1));
                             if(arg1 instanceof Boolean && arg2 instanceof Boolean) {
                                 return (boolean)arg1 && (boolean)arg2;
                             }
@@ -36,12 +35,12 @@ public class JsonLogic {
                     }
                 });
         operators.put("||",
-                new Operator() {
+                new Operator<List>() {
                     @Override
-                    public Object evalOp(Environment env, Object tree) {
-                        if(tree instanceof List && ((List)tree).size() == 2) {
-                            Object arg1 = evalInner(env, ((List)tree).get(0));
-                            Object arg2 = evalInner(env, ((List)tree).get(1));
+                    public Object evalOp(Environment env, List tree) {
+                        if(tree.size() == 2) {
+                            Object arg1 = evalInner(env, tree.get(0));
+                            Object arg2 = evalInner(env, tree.get(1));
                             if(arg1 instanceof Boolean && arg2 instanceof Boolean) {
                                 return (boolean)arg1 || (boolean)arg2;
                             }
@@ -51,12 +50,12 @@ public class JsonLogic {
                     }
                 });
         operators.put("+",
-                new Operator() {
+                new Operator<List>() {
                     @Override
-                    public Object evalOp(Environment env, Object tree) {
-                        if(tree instanceof List && ((List)tree).size() == 2) {
-                            Object arg1 = evalInner(env, ((List)tree).get(0));
-                            Object arg2 = evalInner(env, ((List)tree).get(1));
+                    public Object evalOp(Environment env, List tree) {
+                        if(tree.size() == 2) {
+                            Object arg1 = evalInner(env, tree.get(0));
+                            Object arg2 = evalInner(env, tree.get(1));
                             if(arg1 instanceof Date && arg2 instanceof Integer) {
                                 Date date = (Date)arg1;
                                 Integer val = (Integer)arg2;
@@ -74,12 +73,12 @@ public class JsonLogic {
                     }
                 });
         operators.put(">",
-                new Operator() {
+                new Operator<List>() {
                     @Override
-                    public Object evalOp(Environment env, Object tree) {
-                        if(tree instanceof List && ((List)tree).size() == 2) {
-                            Object arg1 = evalInner(env, ((List)tree).get(0));
-                            Object arg2 = evalInner(env, ((List)tree).get(1));
+                    public Object evalOp(Environment env, List tree) {
+                        if(tree.size() == 2) {
+                            Object arg1 = evalInner(env, tree.get(0));
+                            Object arg2 = evalInner(env, tree.get(1));
                             if(arg1 instanceof Integer && arg2 instanceof Integer) {
                                 return (Integer)arg1 >= (Integer)arg2;
                             }
@@ -97,14 +96,10 @@ public class JsonLogic {
 
                 });
         operators.put("var",
-                new Operator() {
+                new Operator<String>() {
                     @Override
-                    public Object evalOp(Environment env, Object arg) {
-                        if (arg instanceof String) {
-                            final Object value = env.getValue((String) arg);
-                            return value;
-                        }
-                        throw new ParseException("Variable name must be a string");
+                    public Object evalOp(Environment env, String arg) {
+                        return env.getValue(arg);
                     }
                 });
     }
@@ -120,7 +115,7 @@ public class JsonLogic {
             return obj;
         }
         if(obj instanceof Map) {
-            Map<String, Object> tree = (Map)obj;
+            Map<String, Object> tree = (Map<String, Object>)obj;
             final String op = tree.keySet().stream().findFirst().orElseThrow(() -> new ParseException("Parse error, multiple keys in " + tree));
             if(operators.containsKey(op)) {
                 return operators.get(op).evalOp(env, tree.get(op));
