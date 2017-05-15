@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Date;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -19,77 +20,69 @@ class JsonLogicTest {
 
     @Test
     void varInteger()  throws ParseException, IOException {
-        final Object res = JsonLogic.eval(Environment.from(ImmutableMap.of(
+        final Integer res = (Integer)JsonLogic.eval(Environment.from(ImmutableMap.of(
                 "cool", 42
         )), "{ \"var\" : [ \"cool\" ] }");
 
-        assertTrue(res instanceof Integer);
-        assertTrue((int)res == 42);
+        assertTrue(res == 42);
     }
 
     @Test
     void varDate()  throws ParseException, IOException {
-        final Object res = JsonLogic.eval(Environment.from(ImmutableMap.of(
+        final Date res = (Date)JsonLogic.eval(Environment.from(ImmutableMap.of(
                 "coolDate", df.parse("2042-05-08 11:01")
         )), "{ \"var\" : [ \"coolDate\" ] }");
 
-        assertTrue(res instanceof java.util.Date);
         assertTrue(res.equals(df.parse("2042-05-08 11:01")));
     }
 
     @Test
     void dateArithmetic1() throws ParseException, IOException {
-        final Object res = JsonLogic.eval(Environment.from(ImmutableMap.of(
+        final Boolean res = (Boolean)JsonLogic.eval(Environment.from(ImmutableMap.of(
                 "now", df.parse("2017-05-08 11:01"),
                 "course-start-date", df.parse("2017-05-06 11:00")
         )), "{\">\": [ { \"var\" : [ \"now\" ] }, {\"+\": [ { \"var\" : [ \"course-start-date\" ] }, 2 ]}]}");
 
-        assertTrue(res instanceof Boolean);
-        assertTrue((Boolean)res);
+        assertTrue(res);
     }
 
     @Test
     void or() throws ParseException, IOException {
-        final Object res = JsonLogic.eval(Environment.from(ImmutableMap.of(
+        final Boolean res = (Boolean)JsonLogic.eval(Environment.from(ImmutableMap.of(
                 "now", df.parse("2017-05-08 11:01"),
                 "course-start-date", df.parse("2017-05-06 11:00")
         )), "{ \"||\": [{\">\": [ { \"var\" : [ \"now\" ] }, {\"+\": [ { \"var\" : [ \"course-start-date\" ] }, 2 ]}]}, false]}");
 
-        assertTrue(res instanceof Boolean);
-        assertTrue((Boolean)res);
+        assertTrue(res);
     }
 
     @Test
     void and() throws ParseException, IOException {
-        final Object res = JsonLogic.eval(Environment.from(ImmutableMap.of(
+        final Boolean res = (Boolean)JsonLogic.eval(Environment.from(ImmutableMap.of(
                 "now", df.parse("2017-05-08 11:01"),
                 "course-start-date", df.parse("2017-05-06 11:00")
         )), "{ \"&&\": [{\">\": [ { \"var\" : [ \"now\" ] }, {\"+\": [ { \"var\" : [ \"course-start-date\" ] }, 2 ]}]}, true]}");
 
-        assertTrue(res instanceof Boolean);
-        assertTrue((Boolean)res);
+        assertTrue(res);
     }
 
     @Test
-    void dateArithmetic2()  throws ParseException, IOException {
-        final Object res = JsonLogic.eval(Environment.from(ImmutableMap.of(
+    void dateArithmetic2() throws ParseException, IOException {
+        final Boolean res = (Boolean)JsonLogic.eval(Environment.from(ImmutableMap.of(
                 "now", df.parse("2017-05-08 10:59"),
                 "course-start-date", df.parse("2017-05-06 11:00")
         )), "{\">\": [ { \"var\" : [ \"now\" ] }, {\"+\": [ { \"var\" : [ \"course-start-date\" ] }, 2 ]}]}");
 
-        assertTrue(res instanceof Boolean);
-        assertTrue((Boolean)res);
+        assertTrue(res);
     }
 
     @Test
-    void intArithmetic1()  throws ParseException, IOException {
-        final Object res = JsonLogic.eval(Environment.from(ImmutableMap.of(
+    void intArithmetic1() throws ParseException, IOException {
+        final Integer res = (Integer)JsonLogic.eval(Environment.from(ImmutableMap.of(
                 "cool", 42
         )), "{\"+\": [ { \"var\" : [ \"cool\" ] }, 2 ]}]}");
 
-        assertTrue(res instanceof Integer);
-        assertEquals(res, 44);
+        assertTrue(res == 44);
     }
-
 
 }

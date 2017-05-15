@@ -9,17 +9,17 @@ import java.util.Map;
  */
 public class Environment {
 
-    private Map<String, Object> variableMap;
+    private Map<String, ? extends Comparable> variableMap;
 
-    Environment(Map<String, Object> variableMap) {
+    Environment(Map<String, ? extends Comparable> variableMap) {
         this.variableMap = variableMap;
     }
 
-    public static Environment from(Map<String, Object> variableMap) {
+    public static Environment from(Map<String, ? extends Comparable> variableMap) {
         return new Environment(variableMap);
     }
 
-    public Object getValue(String name) {
+    public Comparable getValue(String name) {
         return this.variableMap.get(name);
     }
 }

@@ -22,10 +22,10 @@ public class JsonLogic {
         operators.put("&&",
                 new Operator() {
                     @Override
-                    public Boolean evalOp(Environment env, List tree) {
+                    public Boolean evalOp(Environment env, List<? extends Comparable> tree) {
                         if(tree.size() == 2) {
-                            Object arg1 = evalInner(env, tree.get(0));
-                            Object arg2 = evalInner(env, tree.get(1));
+                            Comparable arg1 = evalInner(env, tree.get(0));
+                            Comparable arg2 = evalInner(env, tree.get(1));
                             if(arg1 instanceof Boolean && arg2 instanceof Boolean) {
                                 return (boolean)arg1 && (boolean)arg2;
                             }
@@ -37,9 +37,9 @@ public class JsonLogic {
         operators.put("||",
                 new Operator() {
                     @Override
-                    public Boolean evalOp(Environment env, List tree) {
+                    public Boolean evalOp(Environment env, List<? extends Comparable> tree) {
                         if(tree.size() == 2) {
-                            Object arg1 = evalInner(env, tree.get(0));
+                            Comparable arg1 = evalInner(env, tree.get(0));
                             Object arg2 = evalInner(env, tree.get(1));
                             if(arg1 instanceof Boolean && arg2 instanceof Boolean) {
                                 return (boolean)arg1 || (boolean)arg2;
@@ -52,7 +52,7 @@ public class JsonLogic {
         operators.put("+",
                 new Operator() {
                     @Override
-                    public Object evalOp(Environment env, List tree) {
+                    public Comparable evalOp(Environment env, List<? extends Comparable> tree) {
                         if(tree.size() == 2) {
                             Object arg1 = evalInner(env, tree.get(0));
                             Object arg2 = evalInner(env, tree.get(1));
@@ -79,6 +79,9 @@ public class JsonLogic {
                         if(tree.size() == 2) {
                             Object arg1 = evalInner(env, tree.get(0));
                             Object arg2 = evalInner(env, tree.get(1));
+
+
+
                             if(arg1 instanceof Integer && arg2 instanceof Integer) {
                                 return (Integer)arg1 >= (Integer)arg2;
                             }
@@ -98,7 +101,7 @@ public class JsonLogic {
         operators.put("var",
                 new Operator() {
                     @Override
-                    public Object evalOp(Environment env, List<? extends Comparable> tree) {
+                    public Comparable evalOp(Environment env, List<? extends Comparable> tree) {
                         String arg1 = (String)evalInner(env, tree.get(0));
                         return env.getValue(arg1);
                     }
@@ -106,17 +109,17 @@ public class JsonLogic {
     }
 
 
-    private Object evalSt(Environment env, String rule) throws IOException {
+    private Comparable evalSt(Environment env, String rule) throws IOException {
         return evalInner(env, mapper.readValue(rule, new TypeReference<Map<String, Object>>() {
         }));
     }
 
-    private Object evalInner(Environment env, Object obj) {
+    private Comparable evalInner(Environment env, Object obj) {
         if(obj instanceof String || obj instanceof Integer || obj instanceof Boolean) {
-            return obj;
+            return (Comparable)obj;
         }
         if(obj instanceof Map) {
-            Map<String, List<? extends Comparable>> tree = (Map<String, List<? extends Comparable>>) obj;
+            Map<String, List> tree = (Map) obj;
             final String opName = tree.keySet().stream().findFirst().orElseThrow(() -> new ParseException("Parse error, multiple keys in " + tree));
             Operator op = operators.get(opName);
             if(op != null) {
@@ -130,7 +133,7 @@ public class JsonLogic {
     }
 
 
-    public static Object eval(Environment env, String rule) throws IOException {
+    public static Comparable eval(Environment env, String rule) throws IOException {
         return new JsonLogic().evalSt(env, rule);
     }
 }
