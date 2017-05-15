@@ -104,7 +104,7 @@ public class JsonLogic {
                             final Object value = env.getValue((String) arg);
                             return value;
                         }
-                        throw new IllegalStateException("Variable name must be a string");
+                        throw new ParseException("Variable name must be a string");
                     }
                 });
     }
@@ -121,7 +121,7 @@ public class JsonLogic {
         }
         if(obj instanceof Map) {
             Map<String, Object> tree = (Map)obj;
-            final String op = tree.keySet().stream().findFirst().orElseThrow(() -> new IllegalStateException("Parse error, multiple keys in " + tree));
+            final String op = tree.keySet().stream().findFirst().orElseThrow(() -> new ParseException("Parse error, multiple keys in " + tree));
             if(operators.containsKey(op)) {
                 return operators.get(op).evalOp(env, tree.get(op));
             } else {
@@ -136,8 +136,7 @@ public class JsonLogic {
             return obj;
         }
 
-        throw new IllegalStateException("Unknown type");
-
+        throw new ParseException("Unknown type");
     }
 
 
