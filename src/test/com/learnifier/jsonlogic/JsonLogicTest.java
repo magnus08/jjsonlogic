@@ -38,11 +38,33 @@ class JsonLogicTest {
     }
 
     @Test
-    void dateArithmetic1()  throws ParseException, IOException {
+    void dateArithmetic1() throws ParseException, IOException {
         final Object res = JsonLogic.eval(Environment.from(ImmutableMap.of(
                 "now", df.parse("2017-05-08 11:01"),
                 "course-start-date", df.parse("2017-05-06 11:00")
         )), "{\">\": [ { \"var\" : \"now\" }, {\"+\": [ { \"var\" : \"course-start-date\" }, 2 ]}]}");
+
+        assertTrue(res instanceof Boolean);
+        assertTrue((Boolean)res);
+    }
+
+    @Test
+    void or() throws ParseException, IOException {
+        final Object res = JsonLogic.eval(Environment.from(ImmutableMap.of(
+                "now", df.parse("2017-05-08 11:01"),
+                "course-start-date", df.parse("2017-05-06 11:00")
+        )), "{ \"||\": [{\">\": [ { \"var\" : \"now\" }, {\"+\": [ { \"var\" : \"course-start-date\" }, 2 ]}]}, false]}");
+
+        assertTrue(res instanceof Boolean);
+        assertTrue((Boolean)res);
+    }
+
+    @Test
+    void and() throws ParseException, IOException {
+        final Object res = JsonLogic.eval(Environment.from(ImmutableMap.of(
+                "now", df.parse("2017-05-08 11:01"),
+                "course-start-date", df.parse("2017-05-06 11:00")
+        )), "{ \"&&\": [{\">\": [ { \"var\" : \"now\" }, {\"+\": [ { \"var\" : \"course-start-date\" }, 2 ]}]}, true]}");
 
         assertTrue(res instanceof Boolean);
         assertTrue((Boolean)res);

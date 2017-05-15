@@ -20,6 +20,36 @@ public class JsonLogic {
     private final Map<String, Operator> operators = new HashMap<>();
 
     private JsonLogic() {
+        operators.put("&&",
+                new Operator() {
+                    @Override
+                    public Object evalOp(Environment env, Object tree) {
+                        if(tree instanceof List && ((List)tree).size() == 2) {
+                            Object arg1 = evalInner(env, ((List)tree).get(0));
+                            Object arg2 = evalInner(env, ((List)tree).get(1));
+                            if(arg1 instanceof Boolean && arg2 instanceof Boolean) {
+                                return (boolean)arg1 && (boolean)arg2;
+                            }
+                            throw new ParseException("Incorrect type in &&, both arguments must be boolean");
+                        }
+                        throw new ParseException("&& takes two arguments.");
+                    }
+                });
+        operators.put("||",
+                new Operator() {
+                    @Override
+                    public Object evalOp(Environment env, Object tree) {
+                        if(tree instanceof List && ((List)tree).size() == 2) {
+                            Object arg1 = evalInner(env, ((List)tree).get(0));
+                            Object arg2 = evalInner(env, ((List)tree).get(1));
+                            if(arg1 instanceof Boolean && arg2 instanceof Boolean) {
+                                return (boolean)arg1 || (boolean)arg2;
+                            }
+                            throw new ParseException("Incorrect type in ||, both arguments must be boolean");
+                        }
+                        throw new ParseException("|| takes two arguments.");
+                    }
+                });
         operators.put("+",
                 new Operator() {
                     @Override
@@ -38,9 +68,9 @@ public class JsonLogic {
                             if(arg1 instanceof Integer && arg2 instanceof Integer) {
                                 return (Integer)arg1 + (Integer)arg2;
                             }
-                            throw new ParseException("Incorrect type in >, must be integer or date and both must be of same type.");
+                            throw new ParseException("Incorrect type in +, must be integer and integer, or data and integer");
                         }
-                        throw new ParseException("Eval takes two arguments.");
+                        throw new ParseException("+ takes two arguments.");
                     }
                 });
         operators.put(">",
@@ -99,6 +129,10 @@ public class JsonLogic {
             }
         }
         if(obj instanceof Integer) {
+            return obj;
+        }
+
+        if(obj instanceof Boolean) {
             return obj;
         }
 
