@@ -77,22 +77,10 @@ public class JsonLogic {
                     @Override
                     public Boolean evalOp(Environment env, List<? extends Comparable> tree) {
                         if(tree.size() == 2) {
-                            Object arg1 = evalInner(env, tree.get(0));
-                            Object arg2 = evalInner(env, tree.get(1));
+                            Comparable arg1 = evalInner(env, tree.get(0));
+                            Comparable arg2 = evalInner(env, tree.get(1));
 
-
-
-                            if(arg1 instanceof Integer && arg2 instanceof Integer) {
-                                return (Integer)arg1 >= (Integer)arg2;
-                            }
-                            if(arg1 instanceof Date && arg2 instanceof Date) {
-                                Date d1 = (Date)arg1;
-                                Date d2 = (Date)arg2;
-
-                                System.out.println(">= " + d1 + " " + d2);
-                                return d1.after(d2) || d1.equals(d2);
-                            }
-                            throw new ParseException("Incorrect type in >, must be integer or date and both must be of same type.");
+                            return arg1.compareTo(arg2) == 1; // Hmm, can i get rid of this warning somehow?
                         }
                         throw new ParseException("> takes two arguments.");
                     }
